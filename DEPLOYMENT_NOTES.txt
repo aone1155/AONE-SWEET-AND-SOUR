@@ -1,0 +1,39 @@
+SWEET & SOUR WEBSITE UPDATE NOTES
+
+Implemented in this package:
+- Removed public navigation links to admin.html. The existing admin login/role gate remains in place.
+- Removed viewport zoom restriction.
+- Replaced the example domain references with deployment-host-derived canonical/og:url/og:image URLs on the homepage.
+- Corrected the address spelling to Bhagal Talav and aligned the map search query.
+- Removed placeholder # Instagram/Facebook links.
+- Added About Us, Privacy Policy, and Refund & Shipping Policy pages.
+- Added WhatsApp floating contact shortcut and links to policy pages.
+- Added LocalBusiness JSON-LD using the business address and phone already present in the source.
+- Added admin product search and banner product search.
+- Added an order-status dropdown with explicit success/error feedback and refresh.
+- Added pack-size and stock fields to the admin product editor.
+
+IMPORTANT BUSINESS DETAILS STILL REQUIRED BEFORE PRODUCTION:
+1. Actual custom domain: configure DNS/hosting, then set canonical and og URLs to that domain. The site currently derives these URLs from the deployed host; it does not invent a domain.
+2. FSSAI license number: not present in the supplied files. Add the verified number to the footer before publishing.
+3. Official Instagram/Facebook URLs: not supplied, so the dead # icons were removed.
+4. Exact shop map pin: the source only identifies Bhagal Talav Main Road / City Masala Exit. Confirm exact coordinates or Google Maps place URL to avoid pinning the wrong premises.
+5. Delivery areas, charges, minimum order and delivery timelines: not supplied. The policy page asks customers to confirm them rather than publishing made-up terms.
+6. Storefront photo: no shop photo was included; About Us currently uses the supplied brand logo.
+7. Google Analytics: a valid GA4 Measurement ID (G-XXXXXXXXXX) is required. Do not insert a fake ID.
+8. Image WebP optimization: product images are uploaded to an external image host from the admin tool; converting existing hosted images requires access to the image host or original product image files.
+
+IMPORTANT CHECK AFTER DEPLOYMENT:
+- Verify Firestore Rules are deployed. Order updates require the signed-in user's users/{uid} document to have role="admin" and status="active". If the order update still fails, inspect the browser console and Firebase Rules/permissions.
+- Verify pack sizes and stock fields on product and cart/checkout pages before enabling pack-size-dependent pricing. The admin editor now stores packSizes and inStock; each pack size needs its own price if prices differ.
+- The website uses Firebase project sweet-and-sour-aa364. Confirm the Firebase project's authorized domains include the deployed domain.
+
+LATEST CHANGES (v3)
+- Floating WhatsApp button is draggable (touch + mouse), snaps to the nearest side, remembers position (floating-whatsapp.js).
+- Order status fix: checkout now saves orders with document ID = order number (setDoc). Admin/customer lists always use the real Firestore document ID, so updateDoc hits the right order.
+  Old orders (created before this fix) also work now: admin reads the real doc ID.
+- Customer pages (orders.html, order-details.html) now read live from Firestore (onSnapshot) - status changes show on the website instantly.
+- After an admin changes status (dropdown / Dispatch / Delivered / Cancel), WhatsApp opens directly to the number the customer entered at checkout, with the order ID, status and total prefilled. A green WhatsApp button in each row re-sends the message.
+- Login and Signup: required Privacy Policy checkbox (also required for Google sign-in).
+- Faster photos: logo.png reduced 1.8MB -> ~200KB; product photos are served resized as WebP (img-optimizer.js, via wsrv.nl, falls back to the original URL); admin uploads are auto-compressed to max 1200px WebP; lazy loading + preconnect added.
+- You MUST publish firestore.rules (firebase deploy --only firestore:rules) and make sure your users/{uid} document has role="admin" and status="active".
